@@ -1,0 +1,3 @@
+pdf: D:\UPEI\Machine Learning\Project\Concrete-Compressive-Strength-ML-\midpoint_Concrete-Strength-G1.pdf
+plots dir: D:\UPEI\Machine Learning\Project\Concrete-Compressive-Strength-ML-\plots
+reports dir: D:\UPEI\Machine Learning\Project\Concrete-Compressive-Strength-ML-\reports
