@@ -6,16 +6,19 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression, LinearRegression
 from sklearn.metrics import ConfusionMatrixDisplay, classification_report, mean_squared_error, r2_score
 
-# Load data
-df = pd.read_csv("concrete_data.csv")
+# Load data (project-root relative)
+import os
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+DATA_PATH = os.path.join(ROOT_DIR, 'concrete_data.csv')
+df = pd.read_csv(DATA_PATH)
 df.columns = [
     'cement', 'slag', 'fly_ash', 'water', 'superplasticizer',
     'coarse_aggregate', 'fine_aggregate', 'age', 'strength'
 ]
 
-# Create plots directory if it doesn't exist
-import os
-os.makedirs('plots', exist_ok=True)
+# Create plots directory at repo root if it doesn't exist
+PLOTS_DIR = os.path.join(ROOT_DIR, 'plots')
+os.makedirs(PLOTS_DIR, exist_ok=True)
 
 # Plot 1: Target Distribution
 plt.figure(figsize=(5,4))
@@ -25,7 +28,7 @@ sns.countplot(x='strength_class', data=df, palette='pastel')
 plt.title("Target Distribution: High vs Low Strength")
 plt.xlabel("Strength Class (0=Low, 1=High)")
 plt.ylabel("Count")
-plt.savefig('plots/target_distribution.png')
+plt.savefig(os.path.join(PLOTS_DIR, 'target_distribution.png'))
 plt.close()
 
 # Plot 2: Correlation Heatmap
@@ -34,7 +37,7 @@ corr = df.corr()
 sns.heatmap(corr, annot=True, cmap="coolwarm", fmt=".2f")
 plt.title("Correlation Heatmap of Concrete Features")
 plt.tight_layout()  # Added to prevent label cutoff
-plt.savefig('plots/correlation_heatmap.png')
+plt.savefig(os.path.join(PLOTS_DIR, 'correlation_heatmap.png'))
 plt.close()
 
 # Plot 3: Confusion Matrix
@@ -50,12 +53,12 @@ plt.figure(figsize=(8,6))
 ConfusionMatrixDisplay.from_estimator(model, X_test, y_test, cmap='Blues')
 plt.title("Confusion Matrix – Logistic Regression")
 plt.tight_layout()
-plt.savefig('plots/confusion_matrix.png')
+plt.savefig(os.path.join(PLOTS_DIR, 'confusion_matrix.png'))
 plt.close()
 
 # Print classification report for detailed metrics
 report = classification_report(y_test, model.predict(X_test))
-with open('plots/classification_report.txt', 'w') as f:
+with open(os.path.join(PLOTS_DIR, 'classification_report.txt'), 'w') as f:
     f.write("Classification Report for Logistic Regression\n")
     f.write("===========================================\n\n")
     f.write(report)
@@ -83,7 +86,7 @@ p = np.poly1d(z)
 plt.plot(y_pred, p(y_pred), "r--", alpha=0.8, label='Trend')
 
 plt.tight_layout()
-plt.savefig('plots/residuals_plot.png')
+plt.savefig(os.path.join(PLOTS_DIR, 'residuals_plot.png'))
 plt.close()
 
 # Calculate regression metrics
@@ -92,7 +95,7 @@ rmse = np.sqrt(mse)
 r2 = r2_score(y_test, y_pred)
 
 # Save regression analysis report
-with open('plots/regression_report.txt', 'w') as f:
+with open(os.path.join(PLOTS_DIR, 'regression_report.txt'), 'w') as f:
     f.write("Regression Analysis Report\n")
     f.write("========================\n\n")
     f.write(f"Root Mean Squared Error (RMSE): {rmse:.2f} MPa\n")
