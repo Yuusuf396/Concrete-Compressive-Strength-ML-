@@ -65,11 +65,22 @@ def main() -> None:
         mlflow.log_metric("test_accuracy", test_metrics["accuracy"])
         mlflow.log_metric("test_f1", test_metrics["f1"])
 
+        clf_results = {
+            "val_accuracy": val_metrics["accuracy"],
+            "val_f1": val_metrics["f1"],
+            "test_accuracy": test_metrics["accuracy"],
+            "test_f1": test_metrics["f1"],
+        }
+
         evaluate.save_confusion_matrix(
             clf_model,
             clf_features.X_test,
             clf_bundle.y_test,
             utils.FIGURES_DIR / "nn_confusion_matrix.png",
+        )
+        evaluate.save_metrics_table(
+            {"MLPClassifier": clf_results},
+            utils.TABLES_DIR / "nn_classification_metrics.csv",
         )
         model_path = utils.MODELS_DIR / "mlp_classifier.joblib"
         joblib.dump(clf_model, model_path)
@@ -88,10 +99,21 @@ def main() -> None:
         mlflow.log_metric("test_mae", test_metrics["mae"])
         mlflow.log_metric("test_rmse", test_metrics["rmse"])
 
+        reg_results = {
+            "val_mae": val_metrics["mae"],
+            "val_rmse": val_metrics["rmse"],
+            "test_mae": test_metrics["mae"],
+            "test_rmse": test_metrics["rmse"],
+        }
+
         evaluate.save_residual_plot(
             reg_bundle.y_test,
             test_pred,
             utils.FIGURES_DIR / "nn_residuals.png",
+        )
+        evaluate.save_metrics_table(
+            {"MLPRegressor": reg_results},
+            utils.TABLES_DIR / "nn_regression_metrics.csv",
         )
         model_path = utils.MODELS_DIR / "mlp_regressor.joblib"
         joblib.dump(reg_model, model_path)

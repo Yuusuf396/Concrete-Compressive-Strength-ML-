@@ -95,6 +95,12 @@ python src/train_nn.py
 ```
 
 Models: feed-forward MLPClassifier and MLPRegressor (scikit-learn). Metrics/plots/logs follow the same convention under experiment `ConcreteStrength_NeuralNets`.
+Outputs:
+
+- MLflow runs under experiment `ConcreteStrength_NeuralNets`.
+- Saved models in `models/`.
+- Metric tables: `reports/tables/nn_classification_metrics.csv` and `reports/tables/nn_regression_metrics.csv`.
+- Confusion/residual plots: `reports/figures/nn_confusion_matrix.png` and `reports/figures/nn_residuals.png`.
 
 ### 3. Inspect runs with MLflow UI
 
