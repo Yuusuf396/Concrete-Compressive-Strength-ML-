@@ -1,130 +1,112 @@
-# Concrete Compressive Strength Prediction
-**Group Name:** Concrete-Strength-G1  
+# Concrete Compressive Strength – Midpoint Repo
 
-## Project Overview
-Machine learning project to predict concrete compressive strength using both regression (exact MPa) and classification (high vs. low strength) approaches. This repository contains our midpoint deliverables including baseline models, evaluation metrics, and visualizations.
-Concrete is one of the most widely used construction materials, and its compressive strength is a critical factor for ensuring safety and durability of structures. Accurate prediction of compressive strength helps engineers design cost-effective mixtures, minimize material waste, and improve construction safety.  
+Predicting concrete compressive strength is framed as a **dual task**:
 
-This project uses **machine learning** to predict compressive strength both as:
-- A continuous value (**regression**)  
-- A binary outcome (**classification: high vs. low strength**)  
+- **Regression** – estimate the target strength in MPa.
+- **Classification** – detect high-strength mixes (>= 32 MPa, matching the midpoint report).
 
-Comparing classical ML models and neural networks will highlight their effectiveness and limitations.
-
----
-
-## 2. Dataset Description
-- **Name & Source:** [Concrete Strength Dataset – Kaggle (by Hamza Khurshed)](https://www.kaggle.com/datasets/hamzakhurshed/concrete-strength-dataset)  
-- **License:** CC0: Public Domain  
-- **Size:** 1,030 rows × 9 columns  
-
-**Features (all numeric):**  
-- Cement (kg/m³)  
-- Blast Furnace Slag (kg/m³)  
-- Fly Ash (kg/m³)  
-- Water (kg/m³)  
-- Superplasticizer (kg/m³)  
-- Coarse Aggregate (kg/m³)  
-- Fine Aggregate (kg/m³)  
-- Age (days)  
-
-**Target Variable:** Strength (continuous, in MPa)  
-- **Missingness:** 0%  
-- **Sensitive Attributes:** None (only engineering material measurements)  
-- **Derived Label:** Binary `Strength_Class` (High/Low using median split)  
-
-This dataset is widely used in ML benchmarks and is suitable because it supports both continuous regression and discretized classification tasks.  
-
-📂 **GitHub Repo Link:** [Concrete-Compressive-Strength-ML](https://github.com/Yuusuf396/Concrete-Compressive-Strength-ML-.git)
-
----
-
-## 3. Tasks
-
-### Regression Task
-# Concrete Compressive Strength — Midpoint Report
-
-**Group:** Concrete-Strength-G1
-
-## Summary
-
-This repository contains the midpoint deliverables for predicting concrete compressive strength using classical machine learning approaches. We address both regression (predicting strength in MPa) and classification (high vs. low strength using a 32 MPa threshold). The project includes data processing utilities, exploratory analysis, baseline model training with MLflow tracking, evaluation artifacts (plots and tables), and a compiled PDF report.
-
-## Project status (midpoint)
-
-- Data: `concrete_data.csv` (1,030 samples, 8 features)
-- Baselines implemented and tracked with MLflow: Logistic Regression, GaussianNB (classification); Linear Regression, Decision Tree Regressor (regression)
-- Deliverables generated: 4 plots, 2 metric tables, and a PDF report (`midpoint_Concrete-Strength-G1.pdf`).
+This repo packages the midpoint deliverable with a clean Cookiecutter-style layout, reproducible scripts, and MLflow tracking. Classical baselines and neural-network baselines are separate entry points, while shared utilities live under `src/`.
 
 ## Repository layout
 
 ```
-.
-├── concrete_data.csv
+project/
+├── README.md
 ├── requirements.txt
-├── midpoint_Concrete-Strength-G1.pdf
-├── plots/        # Generated figures (plot1..plot4, table images)
-├── reports/      # CSV metric tables and artifact paths
-└── src/          # Source code (data, EDA, training, pipeline)
+├── data/
+│   ├── README.md           # download instructions (no raw CSV tracked)
+│   ├── raw/
+│   ├── interim/
+│   ├── processed/
+│   └── external/
+├── mlruns/                 # local MLflow tracking dir (gitignored except .gitkeep)
+├── models/                 # lightweight serialized artifacts
+├── notebooks/              # optional exploratory notebooks
+├── reports/                # derived tables/figures (auto-generated)
+└── src/
+	├── data.py             # loading, cleaning, splitting
+	├── features.py         # engineered features + scaling
+	├── evaluate.py         # metrics, plots, confusion/residuals
+	├── train_baselines.py  # classical ML for both tasks
+	├── train_nn.py         # MLP-based baselines for both tasks
+	└── utils.py            # shared helpers (paths, seeds, dirs)
 ```
 
-Key scripts:
+## Setup
 
-- `src/midpoint_pipeline.py` — single-run pipeline that trains baselines, logs to MLflow, produces required plots/tables and assembles the PDF report.
-- `src/eda_plots.py` — exploratory visualizations used by the pipeline.
-- `src/train_nn.py` — starter code for neural network experiments (future work).
-
-## Quick start
-
-1. Create a virtual environment and activate it:
-
-```powershell
+```bash
 python -m venv .venv
-.venv\\Scripts\\activate
-```
-
-2. Install dependencies:
-
-```powershell
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-3. Run the midpoint pipeline (from repo root):
+All dependencies are pinned for deterministic builds. MLflow uses a file-based backend under `mlruns/`.
 
-```powershell
-python src/midpoint_pipeline.py
+## Data
+
+Raw datasets are **not** committed. To download the UCI Concrete CSV and emit processed artifacts, run:
+
+```bash
+python -m src.data
 ```
 
-Outputs are written to `plots/`, `reports/`, and the root PDF file.
+This command fetches the file via `ucimlrepo`, writes `data/raw/concrete_data.csv`, adds the binary `strength_class` label, and saves enriched outputs under `data/processed/`.
 
-## Midpoint results (high-level)
+## Training workflows
 
-- Classification: Logistic Regression (with StandardScaler) achieved validation F1 ≈ 0.82 and test F1 = 0.90, indicating strong discriminative power for the chosen features.
-- Regression: DecisionTreeRegressor outperforms LinearRegression (test RMSE 7.86 MPa vs 9.81 MPa), indicating important non-linear effects in the data.
+### 1. Classical baselines
 
-## Key insights
+```bash
+python src/train_baselines.py
+# or: python -m src.train_baselines
+```
 
-- Cement and supplementary cementitious materials (slag, fly ash) show the strongest positive associations with compressive strength; water has a negative effect. Linear model coefficients (approx.) — Cement: +13.20, Slag: +10.33, Age: +7.28, Water: -2.27 (MPa per unit).
-- The superior performance of tree-based models suggests non-linear interactions and time-dependent (age) effects; a neural network and targeted feature engineering (e.g., water/cement ratio, age interactions) are natural next steps.
+Models: Logistic Regression, GaussianNB, LinearRegression, DecisionTreeRegressor. Outputs:
 
-## Reproducibility and tracking
+- MLflow runs under experiment `ConcreteStrength_Baselines`.
+- Saved models in `models/`.
+- Classification/regression metric tables in `reports/tables/`.
+- Confusion matrix & residual plots in `reports/figures/`.
 
-- Experiments are logged under MLflow experiment `ConcreteStrength_Baselines`.
-- Random seeds are fixed in scripts for reproducibility.
+### 2. Neural-network baselines
+
+```bash
+python src/train_nn.py
+# or: python -m src.train_nn
+```
+
+Models: feed-forward MLPClassifier and MLPRegressor (scikit-learn). Metrics/plots/logs follow the same convention under experiment `ConcreteStrength_NeuralNets`.
+
+### 3. Inspect runs with MLflow UI
+
+```bash
+mlflow ui --backend-store-uri "file:$(pwd)/mlruns"
+```
+
+## Reproducibility checklist
+
+- **Seeds:** `src.utils.set_all_seeds()` enforces deterministic NumPy/Python RNG states. Classical baselines use seed `42`; neural nets use seed `21`. Update one constant to propagate everywhere.
+- **Deterministic splits:** `src.data.build_splits()` performs a fixed 70/15/15 split (`random_state=42`), ensuring both baseline scripts read identical folds.
+- **Data availability:** `python -m src.data` is the single command to download/refresh `data/raw/concrete_data.csv` (kept out of git) and regenerate processed parquet + summary stats.
+- **Experiment logging:** Both `train_baselines.py` and `train_nn.py` start MLflow runs, record parameters/metrics, save confusion + residual plots, and log serialized `.joblib` models. Launch `mlflow ui` (above) to compare runs.
+- **Artifacts:** Generated figures/tables/models stay in `reports/` and `models/`, which are gitignored by default to keep the repo lightweight.
+
+## Evaluation helpers
+
+`src.evaluate` centralizes metric computations and plotting so both training scripts remain lean. Confusion matrices and residual plots are written once per script, making it easy to drop them into midpoint reports.
+
+## Deliverables linkage (midpoint narrative)
+
+1. **Data prep (`src.data`)** – fetch + enrich raw records, freeze splits (70/15/15).
+2. **Feature engineering (`src.features`)** – build ratios (e.g., water/cement), scale numeric fields.
+3. **Classical baselines (`src.train_baselines`)** – log metrics/tables/plots to reports + MLflow.
+4. **Neural nets (`src.train_nn`)** – compare non-linear capacity vs. baselines.
+5. **Artifacts (`reports/`, `models/`)** – ready to embed into the midpoint PDF.
 
 ## Next steps
 
-1. Implement and tune an MLP to capture non-linear interactions and age dependence.
-2. Add domain-driven feature engineering (e.g., water/cement ratio, interaction terms).
-3. Add CI checks and a small set of unit tests for data-loading and pipeline sanity.
+- Expand notebooks in `notebooks/` for richer EDA.
+- Add automated tests (PyTest) to guard data transforms and splits.
+- Explore hyper-parameter sweeps (Optuna) using the same layout.
 
-## Data source
-
-Concrete Strength Dataset (Kaggle) — Hamza Khurshed (CC0 Public Domain). See `concrete_data.csv` in the repo.
-
-## Contact
-
-For questions or collaboration, please open an issue or pull request on the repository.
-
----
-_Prepared as a midpoint deliverable._
+For any questions, open an issue or ping the maintainers of **Concrete-Strength-G1**.
