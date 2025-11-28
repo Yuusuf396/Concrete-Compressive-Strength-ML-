@@ -32,6 +32,25 @@ project/
 	└── utils.py            # shared helpers (paths, seeds, dirs)
 ```
 
+## Quickstart (Reproducibility)
+
+```bash
+# 1) environment
+python -m venv .venv
+.\.venv\Scripts\activate  # on macOS/Linux: source .venv/bin/activate
+pip install -r requirements.txt
+
+# 2) data (downloads UCI CSV and writes processed files)
+python -m src.data
+
+# 3) training jobs
+python -m src.train_baselines   # classical models
+python -m src.train_nn          # neural nets
+
+# 4) optional: browse runs
+mlflow ui --backend-store-uri "file:$(pwd)/mlruns"
+```
+
 ## Setup
 
 ```bash
