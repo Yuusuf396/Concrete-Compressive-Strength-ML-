@@ -143,3 +143,4 @@ _Most Critical Features_:
 4. High contrast for readability from distance
 5. Minimal text, maximum visual impact
 6. Insert actual images from reports/figures/
+
