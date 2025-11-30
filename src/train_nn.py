@@ -57,8 +57,10 @@ def main() -> None:
         val_pred = clf_model.predict(clf_features.X_val)
         test_pred = clf_model.predict(clf_features.X_test)
 
-        val_metrics = evaluate.classification_metrics(clf_bundle.y_val, val_pred)
-        test_metrics = evaluate.classification_metrics(clf_bundle.y_test, test_pred)
+        val_metrics = evaluate.classification_metrics(
+            clf_bundle.y_val, val_pred)
+        test_metrics = evaluate.classification_metrics(
+            clf_bundle.y_test, test_pred)
 
         mlflow.log_metric("val_accuracy", val_metrics["accuracy"])
         mlflow.log_metric("val_f1", val_metrics["f1"])
@@ -92,7 +94,8 @@ def main() -> None:
         test_pred = reg_model.predict(reg_features.X_test)
 
         val_metrics = evaluate.regression_metrics(reg_bundle.y_val, val_pred)
-        test_metrics = evaluate.regression_metrics(reg_bundle.y_test, test_pred)
+        test_metrics = evaluate.regression_metrics(
+            reg_bundle.y_test, test_pred)
 
         mlflow.log_metric("val_mae", val_metrics["mae"])
         mlflow.log_metric("val_rmse", val_metrics["rmse"])
